@@ -4,6 +4,18 @@
       <h1 class="text-center">Reporte del tiempo en el Imperio Final</h1>
     </header>
 
+    <!-- Buscador -->
+    <div class="row justify-content-center my-3">
+      <div class="col-md-4">
+        <input
+          v-model="busqueda"
+          type="text"
+          class="form-control"
+          placeholder="Buscar ciudad..."
+        />
+      </div>
+    </div>
+
     <!-- Mensaje de carga -->
     <p v-if="cargando" class="text-center">Cargando datos del clima...</p>
 
@@ -12,9 +24,14 @@
       {{ error }}
     </div>
 
+    <!-- Sin resultados -->
+    <p v-if="lugaresFiltrados.length === 0 && !cargando" class="text-center">
+      No se encontró ninguna ciudad con ese nombre.
+    </p>
+
     <!-- Listado de lugares -->
     <section v-if="!cargando && !error" class="row row-cols-1 row-cols-md-4 row-cols-lg-6 g-4">
-      <div class="col" v-for="lugar in lugares" :key="lugar.id">
+      <div class="col" v-for="lugar in lugaresFiltrados" :key="lugar.id">
         <article class="card weather-card h-100 text-center">
           <i :class="`bi ${iconos[lugar.estadoActual] || 'bi-cloud'} card__icon`"></i>
           <div class="card-body">
@@ -30,16 +47,18 @@
         </article>
       </div>
     </section>
+
   </main>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import WeatherApp from '@/services/WeatherApp'
 
 const lugares = ref([])
 const cargando = ref(true)
 const error = ref(null)
+const busqueda = ref('')
 
 const iconos = {
   'Ceniza constante':   'bi-cloud-haze',
@@ -58,6 +77,12 @@ const nombresCiudades = [
   'Luthadel', 'Fadrex City', 'Urteau', 'Tremredare', 'Mantiz',
   'Conventical of Seran', 'Vetitan', 'Pits of Hathsin', 'Tathingdwen', 'Lakeside',
 ]
+
+const lugaresFiltrados = computed(() =>
+  lugares.value.filter(lugar =>
+    lugar.nombre.toLowerCase().includes(busqueda.value.toLowerCase())
+  )
+)
 
 onMounted(async () => {
   try {
