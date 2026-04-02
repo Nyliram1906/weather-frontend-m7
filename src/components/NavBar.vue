@@ -14,10 +14,33 @@
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
+        <ul class="navbar-nav ms-auto align-items-center">
           <li class="nav-item">
             <router-link class="nav-link" to="/">Inicio</router-link>
           </li>
+
+          <!-- Si está logueado -->
+          <template v-if="isAuthenticated">
+            <li class="nav-item">
+              <router-link class="nav-link" to="/perfil">
+                <i class="bi bi-person-circle me-1"></i>
+                {{ usuario.nombre }}
+              </router-link>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-sm btn-outline-warning ms-2" @click="cerrarSesion">
+                Cerrar sesión
+              </button>
+            </li>
+          </template>
+
+          <!-- Si no está logueado -->
+          <template v-else>
+            <li class="nav-item">
+              <router-link class="nav-link" to="/login">Iniciar sesión</router-link>
+            </li>
+          </template>
+
         </ul>
       </div>
     </div>
@@ -25,4 +48,22 @@
 </template>
 
 <script setup>
+defineOptions({
+  name: 'AppNavbar'
+})
+
+import { computed } from 'vue'
+import { useStore } from 'vuex'
+import { useRouter } from 'vue-router'
+
+const store = useStore()
+const router = useRouter()
+
+const isAuthenticated = computed(() => store.getters.isAuthenticated)
+const usuario = computed(() => store.getters.usuario)
+
+const cerrarSesion = () => {
+  store.dispatch('logout')
+  router.push('/login')
+}
 </script>
